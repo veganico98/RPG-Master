@@ -1,4 +1,4 @@
-# RPGGG — Mestre de RPG com IA
+# MESTRE RPG — Mestre de RPG com IA
 
 RPG de fantasia sombria em texto, narrado por um Mestre baseado em LLM (OpenAI). O jogador escolhe caminhos ou digita ações livres; um **dado de 1 a 10, rolado pelo servidor**, determina o desfecho, e a IA apenas narra as consequências dentro de regras fixas. Cada cena recebe uma ilustração gerada por IA, pode ser narrada em voz alta e, ao final, o jogador pode receber um resumo da aventura por e-mail. No **modo plateia**, o público escaneia um QR Code e vota pelo celular no próximo passo do herói.
 
@@ -117,34 +117,7 @@ RPGGG/
 └── tsconfig.base.json   Configuração TypeScript compartilhada
 ```
 
-```
- Telão (navegador) ──┐
-                     ▼
-              ┌────────────────────────────┐
- Celulares ──▶│ Frontend (React/Vite)      │
- (QR Code)    │  /        jogo             │
-              │  /v/CÓD   votação          │
-              └─────────────┬──────────────┘
-                            │ /api/*  (JSON)
-              ┌─────────────▼──────────────┐  import  ┌────────────┐  HTTPS  ┌──────────────┐
-              │ Backend (Express 5)        │ ───────▶ │ @rpggg/ai  │ ──────▶ │    OpenAI    │
-              │  /api/game/*   partida     │          └────────────┘         │ chat/img/voz │
-              │  /api/rooms/*  plateia     │                                 └──────────────┘
-              └─────────────┬──────────────┘
-                            │ webhook (opcional)   ┌────────┐
-                            └────────────────────▶ │  n8n   │ ──▶ e-mail do jogador
-                                                   └────────┘
-```
-
 **Em produção** ([DEPLOY.md](DEPLOY.md)):
-
-```
-Internet ──HTTPS──▶ EC2 t3.small · Amazon Linux 2023 · Elastic IP
-                    ├── rpggg-caddy   Caddy 2 nas portas 80/443, certificado automático para <ip>.sslip.io
-                    │        │ reverse_proxy
-                    │        ▼
-                    └── rpggg-app     imagem do Dockerfile.prod: Express serve /api/* e o build do frontend (porta 3001)
-```
 
 Pontos importantes:
 
