@@ -6,7 +6,9 @@
   "exports": {
     ".": "./index.ts",
     "./types": "./types.ts",
-    "./character": "./character.ts"
+    "./character": "./character.ts",
+    "./origins": "./origins.ts",
+    "./room": "./room.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

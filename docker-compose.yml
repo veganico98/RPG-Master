@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8443:8443" # frontend (Vite)
+      - "3001:3001" # backend (Express)
+    env_file:
+      - .env
+    environment:
+      # File watching over a bind mount (especially from Windows) needs polling,
+      # otherwise Vite/tsx won't pick up file changes.
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=300
+      - FIGMA_DEV_SERVER_HOST=0.0.0.0
+    volumes:
+      - .:/app
+      # Anonymous volumes so the container's own node_modules (Linux binaries)
+      # aren't shadowed by the bind mount above.
+      - /app/node_modules
+      - /app/ai/node_modules
+      - /app/backend/node_modules
+      - /app/frontend/node_modules
+    command: pnpm dev:all

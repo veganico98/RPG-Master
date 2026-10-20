@@ -1,11 +1,16 @@
 export const GAME_RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
-    dice: { type: 'integer', minimum: 1, maximum: 10, description: 'Resultado do dado (1-10)' },
+    dice: { type: 'integer', minimum: 1, maximum: 10, description: 'Valor do dado informado pelo sistema (copie exatamente)' },
     result_type: { type: 'string', enum: ['ruim', 'medio', 'bom'], description: '1-3=ruim, 4-7=medio, 8-10=bom' },
     event: { type: 'string', description: 'Título curto do evento (max 60 chars)' },
     description: { type: 'string', description: 'Narrativa detalhada do evento (2-4 parágrafos épicos)' },
     narrator_message: { type: 'string', description: 'Mensagem dramática do narrador sobre o resultado do dado' },
+    scene_image_prompt: {
+      type: 'string',
+      description:
+        'Descrição visual da cena EM INGLÊS para gerar uma ilustração (1-2 frases): local, criaturas/personagens presentes, ação, iluminação e clima. Sem texto, sem interface.',
+    },
     combat_log: { type: 'string', description: 'Log de combate detalhado se houver batalha (opcional)' },
     paths: {
       type: 'array',
@@ -38,5 +43,5 @@ export const GAME_RESPONSE_SCHEMA = {
     is_game_over: { type: 'boolean' },
     is_victory: { type: 'boolean' },
   },
-  required: ['dice', 'result_type', 'event', 'description', 'narrator_message', 'paths', 'character_status', 'is_boss_fight', 'is_game_over', 'is_victory'],
+  required: ['dice', 'result_type', 'event', 'description', 'narrator_message', 'scene_image_prompt', 'paths', 'character_status', 'is_boss_fight', 'is_game_over', 'is_victory'],
 };

@@ -1,0 +1,42 @@
+# Imagem de produção: build do frontend (Vite) + backend Express servindo
+# tanto a API (/api/*) quanto os arquivos estáticos do build, num único
+# processo/container. Não tem hot reload — para isso use `Dockerfile` +
+# `docker-compose.yml` (ver README da raiz).
+
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@10.34.3 --activate
+WORKDIR /app
+
+# ---- deps: instala tudo (incl. devDependencies, necessárias pro build) ----
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY ai/package.json ai/package.json
+COPY backend/package.json backend/package.json
+COPY frontend/package.json frontend/package.json
+RUN pnpm install --frozen-lockfile
+
+# ---- build: gera dist/ (frontend) a partir do código-fonte ----
+FROM deps AS build
+COPY . .
+RUN pnpm build
+
+# ---- runtime: só o necessário pra rodar em produção ----
+FROM base AS runtime
+ENV NODE_ENV=production
+
+# node_modules já resolvido (com os symlinks do workspace intactos)
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/ai/node_modules ./ai/node_modules
+COPY --from=deps /app/backend/node_modules ./backend/node_modules
+
+# código-fonte necessário em runtime: o backend roda via tsx (sem passo de
+# transpilação própria) e importa @rpggg/ai diretamente dos .ts
+COPY ai ./ai
+COPY backend ./backend
+COPY package.json pnpm-workspace.yaml ./
+
+# build de produção do frontend, servido estaticamente pelo backend
+COPY --from=build /app/dist ./dist
+
+EXPOSE 3001
+CMD ["backend/node_modules/.bin/tsx", "backend/src/server.ts"]

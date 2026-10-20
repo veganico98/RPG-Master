@@ -1,3 +1,5 @@
+import type { HeroOriginId } from './origins';
+
 export interface CharacterStatus {
   health: number;
   maxHealth: number;
@@ -6,6 +8,8 @@ export interface CharacterStatus {
   location: string;
   level: number;
   xp: number;
+  /** Motivação do herói escolhida na abertura. Só afeta a narrativa, nunca as regras. */
+  origin?: HeroOriginId;
 }
 
 export interface Path {
@@ -28,12 +32,14 @@ export interface GameResponse {
     location: string;
     level: number;
     xp: number;
+    origin?: HeroOriginId;
   };
   is_boss_fight: boolean;
   is_game_over: boolean;
   is_victory: boolean;
   narrator_message: string;
   combat_log?: string;
+  scene_image_prompt?: string;
 }
 
 export interface HistoryMessage {

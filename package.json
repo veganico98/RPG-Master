@@ -1,21 +1,26 @@
 {
-  "name": "rpg-master",
+  "name": "figma-make-app",
+  "private": true,
   "version": "1.0.0",
-  "description": "",
-  "homepage": "https://github.com/veganico98/RPG-Master#readme",
-  "bugs": {
-    "url": "https://github.com/veganico98/RPG-Master/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/veganico98/RPG-Master.git"
-  },
-  "license": "ISC",
-  "author": "",
-  "type": "commonjs",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "dev:all": "concurrently -k -n front,back -c cyan,yellow \"pnpm dev\" \"pnpm dev:backend\"",
+    "dev:backend": "pnpm --filter @rpggg/backend dev",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm --filter @rpggg/backend test",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "oxfmt"
   },
-  "keywords": []
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "concurrently": "^10.0.5",
+    "oxfmt": "^0.2.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^8.0.5"
+  }
 }
