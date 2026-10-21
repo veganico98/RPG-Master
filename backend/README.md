@@ -1,8 +1,8 @@
-# @rpggg/backend
+# @rpg-master/backend
 
 API HTTP em Express 5. É a **única parte do sistema que lê segredos** (`OPENAI_API_KEY`, `N8N_WEBHOOK_URL`, `SESSION_SECRET`) — o frontend só fala com esta API via `/api/*` (proxiado pelo Vite em dev).
 
-Toda a lógica de jogo (dado, prompts, schema, guardrails, chamadas à OpenAI) vive em [`@rpggg/ai`](../ai). Este pacote expõe isso como rotas HTTP, valida entrada, guarda o estado da partida, limita requisições por IP e trata erros.
+Toda a lógica de jogo (dado, prompts, schema, guardrails, chamadas à OpenAI) vive em [`@rpg-master/ai`](../ai). Este pacote expõe isso como rotas HTTP, valida entrada, guarda o estado da partida, limita requisições por IP e trata erros.
 
 | Arquivo | Responsabilidade |
 | --- | --- |
@@ -23,7 +23,7 @@ Toda a lógica de jogo (dado, prompts, schema, guardrails, chamadas à OpenAI) v
 | `/api/game/speech` | POST | `{ text, voice?, speed? }` | `{ audio }` | Narração com voz da OpenAI (data URL MP3). |
 | `/api/game/send-summary` | POST | `{ email, summary, state_token }` | `{ ok: true }` | Repassa o resumo ao webhook do n8n, que envia o e-mail. |
 
-`GameResponse`, `CharacterStatus` e `HistoryMessage` vêm de `@rpggg/ai` — ver [ai/README.md](../ai/README.md#exports).
+`GameResponse`, `CharacterStatus` e `HistoryMessage` vêm de `@rpg-master/ai` — ver [ai/README.md](../ai/README.md#exports).
 
 ### Modo plateia (`/api/rooms`)
 
@@ -60,7 +60,7 @@ Toda validação é manual (sem lib de schema), em [src/server.ts](src/server.ts
 - `history`: no máximo **50 mensagens**, `role` `user` ou `assistant`, `content` até **8.000 caracteres**. Serve só de contexto narrativo.
 - `state_token`: assinatura válida e não expirado; em `action`, a partida não pode ter terminado; em `send-summary`, precisa ter terminado e não pode ter enviado e-mail antes.
 - `prompt` (imagem): até **800 caracteres**.
-- `text` (voz): até **4.000 caracteres**; `voice` em `TTS_VOICES`; `speed` limitado a 0,25–4 em `@rpggg/ai`.
+- `text` (voz): até **4.000 caracteres**; `voice` em `TTS_VOICES`; `speed` limitado a 0,25–4 em `@rpg-master/ai`.
 - `email`: formato válido, até **200 caracteres**; `summary` até **8.000 caracteres**.
 
 ## Limites por IP
@@ -104,7 +104,7 @@ Variáveis lidas via `process.env` (modelo em [../.env.example](../.env.example)
 | `SESSION_SECRET` | aleatório | Assina o estado das partidas |
 | `TRUST_PROXY` | — | Valor de `trust proxy` do Express (número de proxies, `true` ou lista de IPs) |
 | `BACKEND_PORT` | `3001` | Porta do servidor; precisa bater com o proxy `/api` do `vite.config.ts` |
-| `OPENAI_MODEL`, `OPENAI_IMAGE_MODEL`, `OPENAI_IMAGE_QUALITY`, `OPENAI_TTS_MODEL` | ver README da raiz | Lidas em `@rpggg/ai`, mas afetam este processo |
+| `OPENAI_MODEL`, `OPENAI_IMAGE_MODEL`, `OPENAI_IMAGE_QUALITY`, `OPENAI_TTS_MODEL` | ver README da raiz | Lidas em `@rpg-master/ai`, mas afetam este processo |
 
 Os scripts `dev` e `start` carregam `../.env` e depois `backend/.env` (`--env-file-if-exists`); o segundo tem prioridade. Prefira manter tudo no `.env` da raiz.
 
@@ -131,6 +131,6 @@ Docker de desenvolvimento: ver o [README da raiz](../README.md). Produção (inc
 
 ## Stack e dependências
 
-- **Express 5** — única dependência de runtime além do workspace `@rpggg/ai`.
+- **Express 5** — única dependência de runtime além do workspace `@rpg-master/ai`.
 - **tsx** — executa TypeScript diretamente (dev, produção e testes com `node:test`).
 - Sem banco de dados: o estado da partida viaja assinado com o cliente.

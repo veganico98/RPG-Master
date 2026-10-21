@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { characterFromResponse, INITIAL_CHARACTER } from '@rpggg/ai/character';
-import { HERO_ORIGINS } from '@rpggg/ai/origins';
-import type { CharacterStatus, HistoryMessage, Path } from '@rpggg/ai/types';
-import type { HeroOriginId } from '@rpggg/ai/origins';
-import type { TtsVoice } from '@rpggg/ai';
+import { characterFromResponse, INITIAL_CHARACTER } from '@rpg-master/ai/character';
+import { HERO_ORIGINS } from '@rpg-master/ai/origins';
+import type { CharacterStatus, HistoryMessage, Path } from '@rpg-master/ai/types';
+import type { HeroOriginId } from '@rpg-master/ai/origins';
+import type { TtsVoice } from '@rpg-master/ai';
 import type { ChatMessage } from './types';
 import { AudienceButton, AudienceCorner, AudienceModal, useAudience, VoteBar, type Audience } from './Audience';
 import type { GameTurn, StoryOutcome } from './services/gameApi';

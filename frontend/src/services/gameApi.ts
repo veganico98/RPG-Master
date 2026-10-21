@@ -1,6 +1,6 @@
-import type { GameResponse, HistoryMessage } from '@rpggg/ai/types';
-import type { HeroOriginId } from '@rpggg/ai/origins';
-import type { TtsVoice } from '@rpggg/ai';
+import type { GameResponse, HistoryMessage } from '@rpg-master/ai/types';
+import type { HeroOriginId } from '@rpg-master/ai/origins';
+import type { TtsVoice } from '@rpg-master/ai';
 
 /** Resposta do Mestre + o estado assinado que o servidor exige no próximo turno. */
 export type GameTurn = GameResponse & { state_token: string };

@@ -1,5 +1,5 @@
 import { randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
-import type { GameResponse, Path, RoomPhase, RoomState } from '@rpggg/ai';
+import type { GameResponse, Path, RoomPhase, RoomState } from '@rpg-master/ai';
 
 /** Sem 0/O/1/I, para dar para digitar o código lendo do telão. */
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

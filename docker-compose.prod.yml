@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    image: rpggg:latest
+    image: rpg-master:latest
     ports:
       - "3001:3001" # única porta em produção: o backend também serve o frontend estático
     env_file:

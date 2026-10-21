@@ -10,8 +10,8 @@ import {
   getOpeningScene,
   HERO_ORIGINS,
   isTtsVoice,
-} from '@rpggg/ai';
-import type { GameResponse, HeroOriginId, HistoryMessage } from '@rpggg/ai';
+} from '@rpg-master/ai';
+import type { GameResponse, HeroOriginId, HistoryMessage } from '@rpg-master/ai';
 import { createSessionSigner, type GameState } from './session';
 import { rateLimit } from './rateLimit';
 import { RoomStore } from './rooms';

@@ -76,6 +76,6 @@ Estado do projeto ao início da documentação/dockerização, para referência:
 
 - Jogo de RPG em texto narrado por um Mestre baseado em LLM (OpenAI), com dado de 1–10 **rolado no servidor** (nunca pelo modelo) e resposta estruturada via function calling forçado (`game_response`).
 - Base de conhecimento fixa (regiões, bestiário, itens, guardrails) em [ai/knowledgeBase.ts](ai/knowledgeBase.ts).
-- Monorepo pnpm com três pacotes: [`@rpggg/ai`](ai) (domínio do jogo), [`@rpggg/backend`](backend) (API Express 5) e [`@rpggg/frontend`](frontend) (React 19 + Tailwind 4).
+- Monorepo pnpm com três pacotes: [`@rpg-master/ai`](ai) (domínio do jogo), [`@rpg-master/backend`](backend) (API Express 5) e [`@rpg-master/frontend`](frontend) (React 19 + Tailwind 4).
 - Backend com rotas `/api/health`, `/api/game/start`, `/api/game/action`, `/api/game/image`, validação de entrada e tratamento de erros (`400`/`500`/`502`).
 - Frontend com telas de boas-vindas, jogo (chat + painel do personagem) e fim de jogo (derrota/vitória); ilustração de cena gerada por IA (liga/desliga persistido); narração por voz via Web Speech API.

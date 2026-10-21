@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { INITIAL_CHARACTER } from '@rpggg/ai';
+import { INITIAL_CHARACTER } from '@rpg-master/ai';
 import { createSessionSigner } from './session';
 
 const signer = createSessionSigner('segredo-de-teste', 1000);

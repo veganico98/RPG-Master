@@ -1,6 +1,6 @@
 # Deploy em produção
 
-Este guia sobe o RPGGG em um servidor próprio com Docker. Em produção roda um único container: o backend Express serve a API (`/api/*`) e o build estático do frontend, na porta `3001`.
+Este guia sobe o RPG Master em um servidor próprio com Docker. Em produção roda um único container: o backend Express serve a API (`/api/*`) e o build estático do frontend, na porta `3001`.
 
 **Situação atual:** publicado em **https://32-192-117-236.sslip.io**, numa EC2 da conta AWS Academy (`us-east-1`), com [deploy/aws-ec2.sh](deploy/aws-ec2.sh). As seções 1 a 7 valem para qualquer servidor com Docker.
 
@@ -103,7 +103,7 @@ docker compose -f docker-compose.prod.yml up -d --force-recreate
 O container expõe HTTP na porta `3001`. Coloque um proxy reverso na frente para HTTPS. Exemplo com Caddy (certificado automático):
 
 ```
-rpggg.seudominio.com {
+rpg-master.seudominio.com {
   reverse_proxy localhost:3001
 }
 ```

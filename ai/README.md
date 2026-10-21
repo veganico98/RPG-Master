@@ -1,6 +1,6 @@
-# @rpggg/ai
+# @rpg-master/ai
 
-Pacote de domínio do jogo. Não depende de Express, React nem de nenhum framework HTTP — é só lore, prompts, schema e chamadas cruas (`fetch`) à API da OpenAI. É consumido pelo [`@rpggg/backend`](../backend) (lógica completa) e pelo [`@rpggg/frontend`](../frontend) (somente tipos e constantes, via subpaths).
+Pacote de domínio do jogo. Não depende de Express, React nem de nenhum framework HTTP — é só lore, prompts, schema e chamadas cruas (`fetch`) à API da OpenAI. É consumido pelo [`@rpg-master/backend`](../backend) (lógica completa) e pelo [`@rpg-master/frontend`](../frontend) (somente tipos e constantes, via subpaths).
 
 Para o contexto completo do jogo (regiões, bestiário, regras de progressão) veja o [README da raiz](../README.md#2-o-jogo).
 
@@ -37,8 +37,8 @@ O `package.json` declara subpaths para permitir que o frontend importe só tipos
 }
 ```
 
-- **Backend** importa de `@rpggg/ai` (raiz): `callGameMaster`, `getOpeningScene`, `generateSceneImage`, `generateSpeech`, `isTtsVoice`, `characterFromResponse`, `HERO_ORIGINS` (para validar a origem recebida em `/api/game/start`), além dos tipos.
-- **Frontend** importa de `@rpggg/ai/types` (tipos como `CharacterStatus`, `GameResponse`, `Path`), `@rpggg/ai/character` (`INITIAL_CHARACTER`) e `@rpggg/ai/origins` (`HERO_ORIGINS`, para renderizar os botões de origem na tela de boas-vindas) e `@rpggg/ai/room` (`RoomState`), nunca da raiz — assim o bundle do cliente não carrega `gameMaster.ts`/`imageGen.ts`, que fazem chamadas autenticadas à OpenAI.
+- **Backend** importa de `@rpg-master/ai` (raiz): `callGameMaster`, `getOpeningScene`, `generateSceneImage`, `generateSpeech`, `isTtsVoice`, `characterFromResponse`, `HERO_ORIGINS` (para validar a origem recebida em `/api/game/start`), além dos tipos.
+- **Frontend** importa de `@rpg-master/ai/types` (tipos como `CharacterStatus`, `GameResponse`, `Path`), `@rpg-master/ai/character` (`INITIAL_CHARACTER`) e `@rpg-master/ai/origins` (`HERO_ORIGINS`, para renderizar os botões de origem na tela de boas-vindas) e `@rpg-master/ai/room` (`RoomState`), nunca da raiz — assim o bundle do cliente não carrega `gameMaster.ts`/`imageGen.ts`, que fazem chamadas autenticadas à OpenAI.
 
 ## Como funciona cada chamada
 
@@ -96,7 +96,7 @@ Nenhuma chave é lida diretamente por este pacote — `apiKey` sempre chega por 
 Pacote só de tipos/lógica, sem processo próprio — é usado via import pelos outros workspaces.
 
 ```bash
-pnpm --filter @rpggg/ai typecheck
+pnpm --filter @rpg-master/ai typecheck
 ```
 
 Para testar as chamadas de verdade, rode o backend (`pnpm dev:backend`, na raiz) com `OPENAI_API_KEY` configurada e bata em `/api/game/start` — veja o [README do backend](../backend/README.md).

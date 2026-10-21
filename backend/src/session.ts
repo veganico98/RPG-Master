@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { CharacterStatus } from '@rpggg/ai';
+import type { CharacterStatus } from '@rpg-master/ai';
 
 export type GameOutcome = 'vitoria' | 'derrota';
 

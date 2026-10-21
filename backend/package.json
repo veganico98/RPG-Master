@@ -1,5 +1,5 @@
 {
-  "name": "@rpggg/backend",
+  "name": "@rpg-master/backend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -10,7 +10,7 @@
     "test": "tsx --test src/*.test.ts ../ai/*.test.ts"
   },
   "dependencies": {
-    "@rpggg/ai": "workspace:*",
+    "@rpg-master/ai": "workspace:*",
     "express": "^5.1.0"
   },
   "devDependencies": {

@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite",
     "dev:all": "concurrently -k -n front,back -c cyan,yellow \"pnpm dev\" \"pnpm dev:backend\"",
-    "dev:backend": "pnpm --filter @rpggg/backend dev",
+    "dev:backend": "pnpm --filter @rpg-master/backend dev",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm --filter @rpggg/backend test",
+    "test": "pnpm --filter @rpg-master/backend test",
     "build": "vite build",
     "preview": "vite preview",
     "format": "oxfmt"

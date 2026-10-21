@@ -30,7 +30,7 @@ COPY --from=deps /app/ai/node_modules ./ai/node_modules
 COPY --from=deps /app/backend/node_modules ./backend/node_modules
 
 # código-fonte necessário em runtime: o backend roda via tsx (sem passo de
-# transpilação própria) e importa @rpggg/ai diretamente dos .ts
+# transpilação própria) e importa @rpg-master/ai diretamente dos .ts
 COPY ai ./ai
 COPY backend ./backend
 COPY package.json pnpm-workspace.yaml ./

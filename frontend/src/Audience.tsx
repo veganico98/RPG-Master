@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import type { Path } from '@rpggg/ai/types';
+import type { Path } from '@rpg-master/ai/types';
 import {
   createRoom,
   getRoom,

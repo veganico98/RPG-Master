@@ -1,4 +1,4 @@
-import type { Path } from '@rpggg/ai/types';
+import type { Path } from '@rpg-master/ai/types';
 
 export interface ChatMessage {
   id: string;

@@ -1,5 +1,5 @@
-import type { Path } from '@rpggg/ai/types';
-import type { RoomState } from '@rpggg/ai/room';
+import type { Path } from '@rpg-master/ai/types';
+import type { RoomState } from '@rpg-master/ai/room';
 
 export type { RoomState };
 

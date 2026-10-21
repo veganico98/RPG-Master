@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { Path } from '@rpggg/ai';
+import type { Path } from '@rpg-master/ai';
 import { CODE_LENGTH, type RoomStore } from './rooms';
 import { rateLimit } from './rateLimit';
 

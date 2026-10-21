@@ -1,6 +1,6 @@
-# @rpggg/frontend
+# @rpg-master/frontend
 
-Interface do jogo: React 19 + Tailwind CSS 4. Fala **somente** com o backend via `/api/*` — nunca importa `gameMaster.ts`/`imageGen.ts` de `@rpggg/ai` (que fazem chamadas autenticadas à OpenAI), só os tipos e constantes expostos pelos subpaths `@rpggg/ai/types`, `@rpggg/ai/character`, `@rpggg/ai/origins` e `@rpggg/ai/room`.
+Interface do jogo: React 19 + Tailwind CSS 4. Fala **somente** com o backend via `/api/*` — nunca importa `gameMaster.ts`/`imageGen.ts` de `@rpg-master/ai` (que fazem chamadas autenticadas à OpenAI), só os tipos e constantes expostos pelos subpaths `@rpg-master/ai/types`, `@rpg-master/ai/character`, `@rpg-master/ai/origins` e `@rpg-master/ai/room`.
 
 > O Vite (`vite.config.ts`, `index.html`) fica na **raiz do repositório**, não aqui, porque o Figma Make exige esse layout. Este pacote só contém o código-fonte (`src/`); build, dev server e proxy `/api` são configurados na raiz.
 
@@ -14,7 +14,7 @@ Interface do jogo: React 19 + Tailwind CSS 4. Fala **somente** com o backend via
 | [src/services/roomApi.ts](src/services/roomApi.ts) | Cliente HTTP das rotas `/api/rooms`. |
 | [src/App.tsx](src/App.tsx) | Todas as telas e a lógica de jogo (~1500 linhas): estado do personagem, chat, dado, narração por voz, ilustração de cena, salvamento da sessão, resumo por e-mail e a integração com o modo plateia. Ver seção abaixo. |
 | [src/services/gameApi.ts](src/services/gameApi.ts) | Cliente HTTP fino sobre `fetch`: `getOpeningScene(origin?)`, `callGameMaster(action, history, stateToken)`, `generateSceneImage(prompt)`, `generateSpeech(text, voice?, speed?)`, `sendStorySummary(email, summary, stateToken)` e `isEmailEnabled()` (lê `hasEmail` do `/api/health`), além do tipo `GameTurn` (`GameResponse` + `state_token`). Cada função é um `POST` para a rota correspondente do backend (ver [backend/README.md](../backend/README.md#rotas)) e lança `Error` com a mensagem de `{ error }` quando a resposta não é `ok`. |
-| [src/types.ts](src/types.ts) | Tipos só de UI: `ChatMessage` (mensagens do chat, com `role: 'narrator' \| 'player' \| 'system'`, dado, tipo de resultado, caminhos, estado da imagem). Os tipos de domínio (`CharacterStatus`, `GameResponse`, `Path`) vêm de `@rpggg/ai/types`. |
+| [src/types.ts](src/types.ts) | Tipos só de UI: `ChatMessage` (mensagens do chat, com `role: 'narrator' \| 'player' \| 'system'`, dado, tipo de resultado, caminhos, estado da imagem). Os tipos de domínio (`CharacterStatus`, `GameResponse`, `Path`) vêm de `@rpg-master/ai/types`. |
 | [src/index.css](src/index.css) | Estilos globais / import do Tailwind. |
 | [src/vite-env.d.ts](src/vite-env.d.ts) | Tipos de ambiente do Vite. |
 
@@ -22,7 +22,7 @@ Interface do jogo: React 19 + Tailwind CSS 4. Fala **somente** com o backend via
 
 Um único componente de página com três telas controladas por estado (`gameStarted`, `isGameOver`, `isVictory`):
 
-1. **Boas-vindas** — antes de `gameStarted`; usa `INITIAL_CHARACTER` de `@rpggg/ai/character` para mostrar o personagem inicial e `HERO_ORIGINS` de `@rpggg/ai/origins` para deixar o jogador escolher a motivação do herói (Vingança, Dever ou Descoberta) antes de começar. Dois botões: **Iniciar Aventura** e **📱 Jogar com a plateia**, que já abre o QR Code. A origem escolhida é passada para `getOpeningScene(origin)` e volta em `character_status.origin` a partir da primeira cena — só afeta a narração, nunca os atributos.
+1. **Boas-vindas** — antes de `gameStarted`; usa `INITIAL_CHARACTER` de `@rpg-master/ai/character` para mostrar o personagem inicial e `HERO_ORIGINS` de `@rpg-master/ai/origins` para deixar o jogador escolher a motivação do herói (Vingança, Dever ou Descoberta) antes de começar. Dois botões: **Iniciar Aventura** e **📱 Jogar com a plateia**, que já abre o QR Code. A origem escolhida é passada para `getOpeningScene(origin)` e volta em `character_status.origin` a partir da primeira cena — só afeta a narração, nunca os atributos.
 2. **Jogo** — chat (mensagens `narrator`/`player`/`system`) + painel do personagem (vida, XP, ouro, nível, localização, inventário) + campo de ação livre e botões de caminho.
 3. **Fim de jogo** — derrota (`isGameOver`) ou vitória (`isVictory`), cada uma com tela própria e botão de recomeçar. O formulário do resumo por e-mail só aparece se o servidor tiver o n8n configurado.
 
@@ -61,7 +61,7 @@ pnpm dev:all          # frontend + backend juntos (recomendado)
 | Script | Onde roda | Efeito |
 | --- | --- | --- |
 | `pnpm dev` (raiz) | raiz | Sobe o Vite com este pacote como fonte (`resolve.alias '@'` aponta para `frontend/src`) |
-| `pnpm --filter @rpggg/frontend typecheck` | aqui | `tsc --noEmit` |
+| `pnpm --filter @rpg-master/frontend typecheck` | aqui | `tsc --noEmit` |
 | `pnpm build` / `pnpm preview` (raiz) | raiz | Build de produção e preview do bundle |
 
 Verificação rápida com o backend no ar: abra `http://localhost:8443`, clique em começar a aventura — se a cena de abertura não carregar, confira `curl http://localhost:3001/api/health` (deve retornar `hasKey: true`) antes de suspeitar do frontend.

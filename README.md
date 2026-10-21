@@ -10,9 +10,9 @@ RPG de fantasia sombria em texto, narrado por um Mestre baseado em LLM (OpenAI).
 2. [O jogo](#2-o-jogo)
 3. [Arquitetura](#3-arquitetura)
 4. [Fluxo de uma partida, de ponta a ponta](#4-fluxo-de-uma-partida-de-ponta-a-ponta) (inclui o [modo plateia](#modo-plateia-votação-pelo-celular))
-5. [Camada de IA (`@rpggg/ai`)](#5-camada-de-ia-rpgggai)
-6. [Backend (`@rpggg/backend`)](#6-backend-rpgggbackend)
-7. [Frontend (`@rpggg/frontend`)](#7-frontend-rpgggfrontend)
+5. [Camada de IA (`@rpg-master/ai`)](#5-camada-de-ia-rpg-masterai)
+6. [Backend (`@rpg-master/backend`)](#6-backend-rpg-masterbackend)
+7. [Frontend (`@rpg-master/frontend`)](#7-frontend-rpg-masterfrontend)
 8. [Instalação e execução](#8-instalação-e-execução)
 9. [Configuração](#9-configuração)
 10. [Decisões de projeto](#10-decisões-de-projeto)
@@ -26,7 +26,7 @@ Documentos relacionados: **[DEPLOY.md](DEPLOY.md)** (deploy em produção) · **
 
 Usar um LLM como mestre de RPG tem problemas conhecidos: o modelo inventa itens, ignora resultados de dados, concede recompensas exageradas, perde a coerência do estado do personagem e não sabe quando encerrar a história.
 
-O RPGGG trata isso como um problema de **separação de responsabilidades**:
+O RPG Master trata isso como um problema de **separação de responsabilidades**:
 
 | Responsabilidade | Quem cuida |
 | --- | --- |
@@ -103,10 +103,10 @@ O RPGGG trata isso como um problema de **separação de responsabilidades**:
 Monorepo **pnpm workspaces** com três pacotes:
 
 ```
-RPGGG/
-├── ai/                  @rpggg/ai        Domínio do jogo: lore, prompts, schema, chamadas à OpenAI (texto, imagem, voz)
-├── backend/             @rpggg/backend   API HTTP (Express 5), validação, guarda dos segredos, ponte com o n8n
-├── frontend/            @rpggg/frontend  Interface React 19 + Tailwind 4
+RPG Master/
+├── ai/                  @rpg-master/ai        Domínio do jogo: lore, prompts, schema, chamadas à OpenAI (texto, imagem, voz)
+├── backend/             @rpg-master/backend   API HTTP (Express 5), validação, guarda dos segredos, ponte com o n8n
+├── frontend/            @rpg-master/frontend  Interface React 19 + Tailwind 4
 ├── index.html           Entrada do Vite (na raiz por exigência do Figma Make)
 ├── vite.config.ts       Vite + proxy /api → backend
 ├── .figma/              Configuração do Figma Make
@@ -122,7 +122,7 @@ RPGGG/
 Pontos importantes:
 
 - **Isolamento dos segredos.** Somente o backend lê `OPENAI_API_KEY` e `N8N_WEBHOOK_URL`. O navegador nunca os vê.
-- **Tipos compartilhados.** O frontend importa apenas tipos e constantes de `@rpggg/ai` (subpaths `./types`, `./character`, `./origins` e `./room`), garantindo um contrato único sem levar código de servidor ao bundle.
+- **Tipos compartilhados.** O frontend importa apenas tipos e constantes de `@rpg-master/ai` (subpaths `./types`, `./character`, `./origins` e `./room`), garantindo um contrato único sem levar código de servidor ao bundle.
 - **Proxy de desenvolvimento.** O Vite encaminha `/api` para `http://localhost:${BACKEND_PORT}`, evitando CORS.
 - **Produção em um processo.** Se existir `dist/` (gerado por `pnpm build`), o próprio backend serve os arquivos estáticos e devolve `index.html` para qualquer rota fora de `/api/*`.
 
@@ -165,7 +165,7 @@ Pensado para apresentações: o telão roda o jogo e o público decide os caminh
 
 O apresentador continua podendo clicar num caminho ou digitar uma ação livre a qualquer momento. Telão e celulares consultam a sala a cada 1–1,5 s (polling), sem WebSocket. As salas ficam em memória, expiram após 4 horas paradas e somem se o servidor reiniciar; nesse caso o telão avisa e basta ativar a plateia de novo.
 
-## 5. Camada de IA (`@rpggg/ai`)
+## 5. Camada de IA (`@rpg-master/ai`)
 
 | Arquivo | Função |
 | --- | --- |
@@ -182,7 +182,7 @@ O apresentador continua podendo clicar num caminho ou digitar uma ação livre a
 
 **Contrato de resposta (`GameResponse`).** `dice`, `result_type`, `event`, `description`, `narrator_message`, `scene_image_prompt`, `paths[]`, `character_status`, `is_boss_fight`, `is_game_over`, `is_victory` e `combat_log` opcional. Na luta contra o Lich, a `description` termina com `[Vida do Lich: X/200]` para manter o controle entre turnos.
 
-## 6. Backend (`@rpggg/backend`)
+## 6. Backend (`@rpg-master/backend`)
 
 API Express 5 em [backend/src/server.ts](backend/src/server.ts), executada com `tsx` (sem passo de build próprio). O estado assinado fica em [session.ts](backend/src/session.ts) e o limite por IP em [rateLimit.ts](backend/src/rateLimit.ts).
 
@@ -217,7 +217,7 @@ As respostas de `start` e `action` são o `GameResponse` mais um campo `state_to
 
 **Erros.** Entrada inválida retorna `400`; token inválido ou expirado, `401`; partida já terminada (ou e-mail já enviado), `409`; limite excedido, `429` com `Retry-After`; segredo ausente, `500`; falha do provedor (OpenAI ou n8n) retorna `502` com a mensagem do erro. Sem `OPENAI_API_KEY` ou sem `N8N_WEBHOOK_URL`, o servidor sobe com aviso e só as rotas que dependem deles respondem `500`.
 
-## 7. Frontend (`@rpggg/frontend`)
+## 7. Frontend (`@rpg-master/frontend`)
 
 React 19 + Tailwind 4, com o Vite na raiz do repositório. Lógica e telas em [frontend/src/App.tsx](frontend/src/App.tsx); cliente HTTP em [frontend/src/services/gameApi.ts](frontend/src/services/gameApi.ts).
 
@@ -332,7 +332,7 @@ Modelo comentado em [.env.example](.env.example).
 - **Salas e limites só em memória.** Um restart do servidor apaga as salas (o telão avisa e basta ativar a plateia de novo). Para várias instâncias, seria preciso Redis.
 - **Hospedagem no AWS Academy.** O site sai do ar quando a sessão do Learner Lab acaba e as credenciais mudam a cada sessão. Para ficar sempre no ar, é preciso uma conta AWS comum.
 
-As perguntas em aberto sobre esses pontos estão reunidas no documento "RPGGG — Perguntas sobre o projeto".
+As perguntas em aberto sobre esses pontos estão reunidas no documento "RPG Master — Perguntas sobre o projeto".
 
 ## Stack
 

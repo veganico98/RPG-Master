@@ -1,5 +1,5 @@
 {
-  "name": "@rpggg/frontend",
+  "name": "@rpg-master/frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -7,7 +7,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@rpggg/ai": "workspace:*",
+    "@rpg-master/ai": "workspace:*",
     "qrcode": "1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
