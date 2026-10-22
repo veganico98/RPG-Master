@@ -4,7 +4,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), 
 
 ## [Não lançado]
 
-Nada pendente no momento.
+### Alterado
+
+- **Partida de 5 turnos** (antes 10): Vila de Pedra Cinza → Floresta de Sussurros → Pântano da Podridão **ou** Ruínas de Aldrath → Montanha do Trovão → Torre da Perdição, uma região por turno. O herói encontra o Lich no fim do turno 4, e a luta se decide numa única rodada no turno 5, com o desfecho definido pelo dado.
+- A 3ª região é sorteada pelo backend no `/api/game/start` (`pickMiddleRegion`) e viaja no `state_token` (campo `middle`), então o cliente não consegue trocá-la.
+- Lore ajustada à rota sorteada: a Pedra do Trovão fica na região sorteada; Pedra do Trovão e Chave da Torre deixam de bloquear o caminho (sem elas, atravessar cobra um preço); o Diário de Aldric fica direto nas Ruínas, então o final verdadeiro só é possível quando o sorteio dá Ruínas.
+
+### Removido
+
+- Item **Mapa das Ruínas**, que dependia de passar pelo Pântano e pelas Ruínas na mesma partida.
+- Fases da luta contra o Lich em 5 rodadas e a marca `[Vida do Lich: X/200]`.
 
 ## 2026-10-12 (documentação)
 

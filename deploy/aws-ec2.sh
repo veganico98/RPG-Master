@@ -112,7 +112,7 @@ done
 # ── Código ─────────────────────────────────────────────────────────────
 log "Enviando o código"
 tar czf - --exclude=node_modules --exclude=dist --exclude='.env' --exclude='.env.*' --exclude='*.pem' \
-  --exclude=.git --exclude='*.log' . |
+  --exclude=.git --exclude='*.log' --exclude=video-historia . |
   "${SSH[@]}" 'sudo rm -rf /opt/rpggg/src && sudo mkdir -p /opt/rpggg/src && sudo tar xzf - -C /opt/rpggg/src'
 
 # ── Segredos: via stdin; SESSION_SECRET é gerado uma vez e preservado ──

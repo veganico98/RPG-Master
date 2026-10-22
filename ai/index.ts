@@ -1,4 +1,6 @@
-export { callGameMaster, getOpeningScene } from './gameMaster';
+export { callGameMaster, getOpeningScene, pickMiddleRegion } from './gameMaster';
+export { isMiddleRegion, MIDDLE_REGIONS } from './knowledgeBase';
+export type { MiddleRegion } from './knowledgeBase';
 export { generateSceneImage } from './imageGen';
 export { generateSpeech, isTtsVoice, TTS_VOICES } from './voiceGen';
 export { characterFromResponse, INITIAL_CHARACTER } from './character';

@@ -10,8 +10,9 @@ import {
   getOpeningScene,
   HERO_ORIGINS,
   isTtsVoice,
+  pickMiddleRegion,
 } from '@rpg-master/ai';
-import type { GameResponse, HeroOriginId, HistoryMessage } from '@rpg-master/ai';
+import type { GameResponse, HeroOriginId, HistoryMessage, MiddleRegion } from '@rpg-master/ai';
 import { createSessionSigner, type GameState } from './session';
 import { rateLimit } from './rateLimit';
 import { RoomStore } from './rooms';
@@ -77,10 +78,11 @@ function isHistory(v: unknown): v is HistoryMessage[] {
 }
 
 /** Resposta do Mestre + o novo estado assinado que o cliente devolve no próximo turno. */
-function withState(game: GameResponse, id: string, turn: number) {
+function withState(game: GameResponse, id: string, turn: number, middle: MiddleRegion | undefined) {
   const state: Omit<GameState, 'iat'> = {
     id,
     turn,
+    middle,
     character: characterFromResponse(game.character_status),
     outcome: game.is_victory ? 'vitoria' : game.is_game_over ? 'derrota' : null,
   };
@@ -101,7 +103,8 @@ app.post('/api/game/start', gameLimit, async (req, res, next) => {
       return void res.status(400).json({ error: 'Origem do herói inválida.' });
     }
 
-    res.json(withState(await getOpeningScene(API_KEY, origin), randomUUID(), 1));
+    // A 3ª região da rota (Pântano ou Ruínas) é sorteada aqui e fica fixa na partida.
+    res.json(withState(await getOpeningScene(API_KEY, origin), randomUUID(), 1, pickMiddleRegion()));
   } catch (err) {
     next(err);
   }
@@ -117,14 +120,14 @@ app.post('/api/game/action', gameLimit, async (req, res, next) => {
     }
     if (!isHistory(history ?? [])) return void res.status(400).json({ error: 'Histórico inválido.' });
 
-    // Personagem e turno vêm do estado assinado, nunca do corpo da requisição.
+    // Personagem, turno e rota vêm do estado assinado, nunca do corpo da requisição.
     const state = sessions.verify(state_token);
     if (!state) return void res.status(401).json({ error: 'Partida inválida ou expirada. Comece uma nova aventura.' });
     if (state.outcome) return void res.status(409).json({ error: 'Esta aventura já terminou.' });
 
     const turn = state.turn + 1;
-    const game = await callGameMaster(API_KEY, action.trim(), state.character, history ?? [], turn);
-    res.json(withState(game, state.id, turn));
+    const game = await callGameMaster(API_KEY, action.trim(), state.character, history ?? [], turn, state.middle);
+    res.json(withState(game, state.id, turn, state.middle));
   } catch (err) {
     next(err);
   }

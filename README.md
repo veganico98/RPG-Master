@@ -44,18 +44,19 @@ O RPG Master trata isso como um problema de **separação de responsabilidades**
 
 **Premissa.** Um herói deve atravessar a Região das Sombras Eternas e destruir o Orbe do Caos, guardado pelo Lich Malachar na Torre da Perdição.
 
-**Progressão.** As regiões são percorridas em ordem:
+**Progressão.** Cada partida percorre 5 regiões em ordem, uma por turno. A 3ª é sorteada pelo servidor no início da partida, entre o Pântano e as Ruínas; a outra fica de fora.
 
-| # | Região | Perigo | Itens de progressão |
+| # | Região | Perigo | Itens |
 | --- | --- | --- | --- |
 | 1 | Vila de Pedra Cinza | Segura (ponto de partida) | — |
 | 2 | Floresta de Sussurros | Perigosa, criaturas menores | — |
-| 3 | Pântano da Podridão | Muito perigosa, criaturas venenosas | Amuleto da Proteção, Mapa das Ruínas |
-| 4 | Ruínas de Aldrath | Perigosa, mortos-vivos | Pedra do Trovão, Diário de Aldric (exige o Mapa) |
-| 5 | Montanha do Trovão | Extremamente perigosa (exige a Pedra do Trovão) | Chave da Torre (dropada pelo Dragão Juvenil) |
-| 6 | Torre da Perdição | Chefão final (exige a Chave da Torre) | — |
+| 3 | Pântano da Podridão **ou** Ruínas de Aldrath (sorteio) | Muito perigosa, criaturas venenosas / Perigosa, mortos-vivos | Pântano: Amuleto da Proteção, Pedra do Trovão. Ruínas: Pedra do Trovão, Diário de Aldric |
+| 4 | Montanha do Trovão | Extremamente perigosa | Chave da Torre (dropada pelo Dragão Juvenil) |
+| 5 | Torre da Perdição | Chefão final | — |
 
-**Duração: exatamente 10 turnos.** A abertura é o turno 1. Os turnos 1 a 5 levam o herói da Vila até o topo da Torre (uma região por turno; o turno 5 condensa a Montanha e a chegada à Torre). Os turnos 6 a 10 são a luta contra o Lich, em 5 rodadas com fases fixas: Raio Necrótico, Escudo de Ossos, Invoca Mortos, fase desesperada e golpe final. As constantes ficam em [ai/prompts.ts](ai/prompts.ts) (`MAX_TURNS = 10`, `BOSS_START_TURN = 6`).
+A Pedra do Trovão e a Chave da Torre não bloqueiam o caminho: sem elas, atravessar a Montanha ou entrar na Torre cobra um preço (dano ou perda de item), mas o herói avança.
+
+**Duração: exatamente 5 turnos.** A abertura é o turno 1, na Vila. Turno 2: Floresta. Turno 3: região sorteada. Turno 4: Montanha, terminando no topo da Torre, cara a cara com o Lich. Turno 5: a luta contra o Lich, numa única rodada decisiva cujo desfecho segue o dado. As constantes ficam em [ai/prompts.ts](ai/prompts.ts) (`MAX_TURNS = 5`, `BOSS_ARRIVAL_TURN = 4`), e a rota em [ai/knowledgeBase.ts](ai/knowledgeBase.ts) (`routeFor`).
 
 **Bestiário**
 
@@ -74,7 +75,7 @@ O RPG Master trata isso como um problema de **separação de responsabilidades**
 
 **Origem do herói.** Na tela de boas-vindas o jogador escolhe uma motivação — **Vingança** (vila natal destruída pelas Sombras), **Dever** (guarda de Pedra Cinza cumprindo juramento, o padrão) ou **Descoberta** (aprendiz da boticária Ysolda, atrás da verdade sobre o Orbe). A origem não altera nenhum atributo; só dá contexto emocional que o Mestre referencia ao longo da campanha ([ai/origins.ts](ai/origins.ts)).
 
-**NPCs nomeados.** Conselheiro Toran (ancião que envia o herói), Bram Aço-Negro (ferreiro), Ysolda (boticária) e Renn Passo-Leve (Mercador Viajante, regiões 2–4). Ficam fixos na base de conhecimento para a IA não inventar nomes novos a cada cena.
+**NPCs nomeados.** Conselheiro Toran (ancião que envia o herói), Bram Aço-Negro (ferreiro), Ysolda (boticária) e Renn Passo-Leve (Mercador Viajante, na Floresta e na região sorteada). Ficam fixos na base de conhecimento para a IA não inventar nomes novos a cada cena.
 
 **A verdade sobre o Lich (spoiler, para quem trabalha no código).** Malachar é Aldric, um herói de Pedra Cinza que séculos atrás prendeu uma entidade sem nome ("a Fome Sem Nome") no Orbe do Caos e assumiu a guarda da Torre. Décadas atrás, para salvar seu povo de uma fome, rompeu o próprio selo e foi consumido por dentro. O jogador só descobre isso pelo item **Diário de Aldric**; o Mestre é instruído a nunca revelar a história antes disso.
 
@@ -92,7 +93,7 @@ O RPG Master trata isso como um problema de **separação de responsabilidades**
 - Ouro só aumenta ao derrotar criaturas ou achar tesouros, com teto de 150 por turno.
 - Curas não excedem o valor do item nem a vida máxima.
 - O personagem não morre de surpresa: com vida ≥ 20, nenhum dano do turno o leva abaixo de 1; abaixo de 20, o Mestre avisa do perigo.
-- O chefão só aparece na região 6, e a vitória exige que a luta tenha acontecido em um turno anterior.
+- O chefão só aparece na Torre da Perdição, e a vitória só pode acontecer no turno 5, na cena em que o Lich é enfrentado.
 - Cada turno oferece de 2 a 4 caminhos distintos; o jogador pode ignorá-los e digitar uma ação livre (até 500 caracteres).
 - A ação do jogador é tratada como dado do jogo, nunca como instrução: tentativas de mudar regras ou revelar o prompt viram uma ação inválida do personagem.
 
@@ -143,7 +144,7 @@ Pontos importantes:
 4. As mensagens enviadas à OpenAI são: prompt do sistema, últimas 10 mensagens do histórico e um prompt de ação. Esse prompt traz a ação, o status atual, o dado já classificado, a região atual e a próxima, alertas de vida baixa, a motivação do herói e uma **nota de ritmo** (que região alcançar neste turno, ou qual rodada da luta contra o Lich narrar).
 5. A chamada usa **function calling forçado** (`tool_choice` na função `game_response`) com `temperature: 0.9`.
 6. `normalize` faz o parse do JSON, preenche campos omitidos com o estado atual, **sobrescreve `dice` e `result_type` com o valor do servidor**, mantém a origem escolhida e aplica os guardrails numéricos: ouro sobe no máximo 150 por turno, vida máxima até 200, vida nunca acima do máximo, com vida ≥ 20 o herói não morre no turno, nível = 1 + floor(XP / 100) e vida 0 é derrota. Também garante ao menos dois caminhos (ou usa caminhos de fallback).
-7. **Rede de segurança do turno 10:** se o modelo não encerrou a história, `normalize` força o confronto com o Lich. Com vida acima de 0 o herói vence; com vida 0 ele perde.
+7. **Rede de segurança do último turno (5):** se o modelo não encerrou a história, `normalize` força o confronto com o Lich. Com vida acima de 0 o herói vence; com vida 0 ele perde.
 8. Se a resposta vier vazia ou inválida, há **uma nova tentativa**; persistindo, o erro chega ao jogador como mensagem do sistema e ele pode tentar de novo.
 9. O backend devolve o `GameResponse` com um novo `state_token`. O frontend atualiza personagem, chat, dado e barras, e salva a sessão (com o token) no `localStorage`.
 10. Em paralelo, sem bloquear a narração: se as imagens estiverem ligadas, pede `POST /api/game/image` com o `scene_image_prompt`; se a voz escolhida for uma voz da OpenAI, pré-gera o áudio com `POST /api/game/speech`.
@@ -180,7 +181,7 @@ O apresentador continua podendo clicar num caminho ou digitar uma ação livre a
 | [character.ts](ai/character.ts) | `INITIAL_CHARACTER` e `characterFromResponse` |
 | [room.ts](ai/room.ts) | Tipos do modo plateia (`RoomState`, `RoomOption`, `RoomPhase`), compartilhados entre backend e frontend |
 
-**Contrato de resposta (`GameResponse`).** `dice`, `result_type`, `event`, `description`, `narrator_message`, `scene_image_prompt`, `paths[]`, `character_status`, `is_boss_fight`, `is_game_over`, `is_victory` e `combat_log` opcional. Na luta contra o Lich, a `description` termina com `[Vida do Lich: X/200]` para manter o controle entre turnos.
+**Contrato de resposta (`GameResponse`).** `dice`, `result_type`, `event`, `description`, `narrator_message`, `scene_image_prompt`, `paths[]`, `character_status`, `is_boss_fight`, `is_game_over`, `is_victory` e `combat_log` opcional.
 
 ## 6. Backend (`@rpg-master/backend`)
 
@@ -311,7 +312,7 @@ Modelo comentado em [.env.example](.env.example).
 - **Dado no servidor.** Garante aleatoriedade real e impede que o modelo "escolha" o resultado. Mesmo que ele devolva outro valor, o servidor sobrescreve.
 - **Function calling em vez de texto livre.** O schema força a estrutura e elimina parsing frágil; a UI consome campos tipados.
 - **Base de conhecimento no prompt.** Reduz alucinação de itens e criaturas e mantém o balanceamento em um só arquivo editável.
-- **Ritmo controlado pelo código.** O modelo sozinho tende a alongar ou encurtar a história. A nota de ritmo de cada turno e a rede de segurança do turno 10 garantem que toda partida termine em 10 turnos, com uma luta de 5 rodadas.
+- **Ritmo controlado pelo código.** O modelo sozinho tende a alongar ou encurtar a história. A nota de ritmo de cada turno e a rede de segurança do último turno garantem que toda partida termine em 5 turnos, com a luta contra o Lich no último.
 - **Janela de histórico de 10 mensagens.** Controla custo e latência; o estado relevante viaja no prompt de ação, não depende do histórico.
 - **Imagem e voz desacopladas da narração.** A cena aparece na hora; ilustração e áudio chegam depois, com retry e opção de desligar ou usar a voz gratuita do navegador.
 - **E-mail via n8n.** O backend só repassa os dados a um webhook; template, provedor de e-mail e envio ficam no n8n, fora do código. Sem webhook, a funcionalidade some da interface em vez de falhar.

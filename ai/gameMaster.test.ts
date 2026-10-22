@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize } from './gameMaster';
+import { normalize, pickMiddleRegion } from './gameMaster';
+import { buildActionPrompt, MAX_TURNS } from './prompts';
+import { MIDDLE_REGIONS } from './knowledgeBase';
 import { INITIAL_CHARACTER } from './character';
 import type { CharacterStatus, GameResponse } from './types';
 
@@ -78,16 +80,37 @@ test('menos de 2 caminhos usa os caminhos de fallback', () => {
   assert.equal(game.paths.length, 3);
 });
 
-test('no turno 10 sem desfecho, a rede de segurança encerra a partida', () => {
-  const game = normalize(raw(), current, 5, 10)!;
+test('a partida tem 5 turnos', () => {
+  assert.equal(MAX_TURNS, 5);
+});
+
+test('no último turno sem desfecho, a rede de segurança encerra a partida', () => {
+  const game = normalize(raw(), current, 5, MAX_TURNS)!;
   assert.equal(game.is_victory, true);
   assert.equal(game.is_boss_fight, true);
   assert.equal(game.character_status.location, 'Torre da Perdição');
   assert.deepEqual(game.paths, []);
 });
 
-test('antes do turno 10 a partida segue aberta', () => {
-  const game = normalize(raw(), current, 5, 9)!;
+test('antes do último turno a partida segue aberta', () => {
+  const game = normalize(raw(), current, 5, MAX_TURNS - 1)!;
   assert.equal(game.is_victory, false);
   assert.equal(game.is_game_over, false);
+});
+
+test('o sorteio da 3ª região só devolve Pântano ou Ruínas, e as duas saem', () => {
+  const seen = new Set(Array.from({ length: 200 }, () => pickMiddleRegion()));
+  assert.deepEqual([...seen].sort(), [...MIDDLE_REGIONS].sort());
+});
+
+test('o prompt de ação leva a rota da partida, sem a região que não foi sorteada', () => {
+  const prompt = buildActionPrompt('Seguir viagem', current, 5, 3, 'Ruínas de Aldrath');
+  assert.match(prompt, /Vila de Pedra Cinza → Floresta de Sussurros → Ruínas de Aldrath → Montanha do Trovão → Torre da Perdição/);
+  assert.doesNotMatch(prompt, /Pântano da Podridão/);
+});
+
+test('no turno 4 o prompt leva o herói até o Lich', () => {
+  const prompt = buildActionPrompt('Seguir viagem', { ...current, location: 'Pântano da Podridão' }, 5, 4, 'Pântano da Podridão');
+  assert.match(prompt, /Turno 4\/5/);
+  assert.match(prompt, /cara a cara com o Lich Malachar/);
 });

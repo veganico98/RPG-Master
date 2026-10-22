@@ -1,12 +1,15 @@
-/** Regiões em ordem de progressão (índice 0 = região 1). Usado também para derivar contexto nos prompts. */
-export const REGION_NAMES = [
-  'Vila de Pedra Cinza',
-  'Floresta de Sussurros',
-  'Pântano da Podridão',
-  'Ruínas de Aldrath',
-  'Montanha do Trovão',
-  'Torre da Perdição',
-] as const;
+/** Regiões que o sistema sorteia como 3ª parada da rota. A outra fica de fora da partida. */
+export const MIDDLE_REGIONS = ['Pântano da Podridão', 'Ruínas de Aldrath'] as const;
+export type MiddleRegion = (typeof MIDDLE_REGIONS)[number];
+
+export function isMiddleRegion(v: unknown): v is MiddleRegion {
+  return typeof v === 'string' && (MIDDLE_REGIONS as readonly string[]).includes(v);
+}
+
+/** Rota de uma partida: 5 regiões, uma por turno, sempre nesta ordem (índice 0 = região 1). */
+export function routeFor(middle: MiddleRegion): string[] {
+  return ['Vila de Pedra Cinza', 'Floresta de Sussurros', middle, 'Montanha do Trovão', 'Torre da Perdição'];
+}
 
 export const RPG_KNOWLEDGE_BASE = `
 # BASE DE CONHECIMENTO DO RPG — Mestre Inteligente
@@ -20,7 +23,7 @@ Há décadas o Lich Malachar corrompe a terra com o Orbe do Caos, guardado no to
 - **Conselheiro Toran** — ancião de Pedra Cinza, envia o herói em missão. Carrega culpa e um segredo sobre o passado do Lich (ver "O SEGREDO DO ORBE"); só solta pistas se muito pressionado, e nunca conta a verdade completa de bom grado.
 - **Bram Aço-Negro** — ferreiro de Pedra Cinza; forjou a Espada de Ferro inicial do herói. Rude por fora, leal por dentro.
 - **Ysolda** — boticária de Pedra Cinza; vende poções e o Antídoto. Estuda há anos relatos antigos sobre a corrupção do Orbe.
-- **Renn Passo-Leve** — Mercador Viajante; pode aparecer nas regiões 2, 3 e 4. Sabe rumores frescos de cada região por onde passou.
+- **Renn Passo-Leve** — Mercador Viajante; pode aparecer na Floresta de Sussurros e na região intermediária (Pântano ou Ruínas). Sabe rumores frescos de cada região por onde passou.
 
 ## MOTIVAÇÃO DO HERÓI (escolhida pelo jogador na abertura)
 O jogador escolhe uma origem antes de começar: Vingança, Dever ou Descoberta (detalhada no prompt de abertura, recebida também em todo prompt de ação como "Motivação do herói"). Referencie essa motivação ocasionalmente na narração — uma dúvida, uma memória, uma linha de diálogo — para dar continuidade emocional, sem exagerar (não em toda cena) e nunca para justificar quebra das regras do jogo.
@@ -31,21 +34,23 @@ Há mais por trás da lenda oficial. Use isto para dar profundidade a NPCs, à a
 - Décadas atrás, uma fome/praga devastou a região (a mesma que hoje se conhece como o avanço das Sombras Eternas). Desesperado para salvar seu povo, Aldric rompeu parte do próprio selo para emprestar o poder do Orbe. A Fome Sem Nome o consumiu por dentro: ele se tornou o Lich, perdendo o próprio nome — hoje é conhecido só como "Malachar" (título antigo, "o que caiu guardando").
 - As **Ruínas de Aldrath** são os restos da fortaleza de Aldric; o nome da região é uma homenagem esquecida a ele.
 - O Conselheiro Toran foi discípulo de Aldric quando jovem; sabe fragmentos dessa verdade, mas a esconde por culpa e medo.
-- O **Diário de Aldric** (Ruínas de Aldrath, só encontrado se o Mapa das Ruínas já foi obtido) narra essa história em primeira pessoa.
+- O **Diário de Aldric** (Ruínas de Aldrath; só existe nas partidas cuja rota passa pelas Ruínas) narra essa história em primeira pessoa.
 
 ### Dois finais possíveis (ambos contam como is_victory = true — a diferença é só narrativa)
 - **Final verdadeiro** (o herói tem "Diário de Aldric" no inventário ao derrotar o Lich): em vez de apenas destruir o Orbe, o herói reconhece Aldric sob a máscara do Lich e usa o que aprendeu no diário para reverter o ritual — liberta o espírito de Aldric e resela a Fome Sem Nome com um custo menor. O Orbe se estilhaça em luz, não em caos; as Sombras Eternas recuam de vez; Aldric é lembrado como herói. Tom: agridoce, mas esperançoso.
 - **Final sombrio** (sem o Diário): o herói derrota o Lich e destrói o Orbe por força bruta. A Fome Sem Nome se dissipa aos poucos, mas deixa cicatrizes — sombras residuais na Torre e nas Ruínas — e ninguém jamais saberá quem Malachar realmente foi. O mundo está salvo, mas o preço foi maior. Tom: mais sombrio.
 Ao narrar a cena final de vitória, verifique o inventário atual do personagem e escolha o final correspondente automaticamente — não pergunte ao jogador qual final ele quer.
 
-## REGIÕES (em ordem de progressão — não podem ser puladas)
+## REGIÕES E ROTA (em ordem de progressão — não podem ser puladas)
 
-1. **Vila de Pedra Cinza** — Segura. Ponto de partida. Ferreiro, boticário e taverna. Único lugar com loja fixa. Sem combate, exceto evento raro.
-2. **Floresta de Sussurros** — Perigosa. Criaturas: Goblin, Lobo das Sombras. Névoa, vozes na mata, acampamentos goblin, clareiras com tesouros. Pode haver Mercador Viajante.
-3. **Pântano da Podridão** — Muito perigosa. Criaturas: Lobo das Sombras, Troll do Pântano. Veneno (exige Antídoto), lama, ruínas afundadas. Pode haver Mercador Viajante. Local do Amuleto da Proteção (escondido) e do Mapa das Ruínas.
-4. **Ruínas de Aldrath** — Perigosa. Criaturas: Esqueleto Guerreiro (comum), Goblin (raro, saqueadores). Cripta, salões desabados, armadilhas antigas. O Mapa das Ruínas revela passagens secretas e tesouros. Local da Pedra do Trovão. Pode haver Mercador Viajante.
-5. **Montanha do Trovão** — Extremamente perigosa. Criaturas: Dragão Juvenil (guardião do desfiladeiro), Esqueleto Guerreiro (raro). Tempestades, penhascos, trilhas estreitas. A passagem só se abre com a Pedra do Trovão. O Dragão Juvenil guarda a Chave da Torre.
-6. **Torre da Perdição** — CHEFÃO FINAL. Só se entra com a Chave da Torre. Andares de mortos-vivos e armadilhas mágicas (use Esqueleto Guerreiro e armadilhas), no topo o Lich Malachar e o Orbe do Caos.
+Cada partida percorre 5 regiões, uma por turno: Vila de Pedra Cinza → Floresta de Sussurros → região intermediária → Montanha do Trovão → Torre da Perdição. A região intermediária é sorteada pelo sistema no início da partida: **Pântano da Podridão** ou **Ruínas de Aldrath**. A que não foi sorteada não existe nesta partida: o herói não passa por ela, e ela não aparece como destino nos caminhos. O prompt de cada turno informa a rota desta partida.
+
+- **Vila de Pedra Cinza** (região 1) — Segura. Ponto de partida. Ferreiro, boticário e taverna. Único lugar com loja fixa. Sem combate, exceto evento raro.
+- **Floresta de Sussurros** (região 2) — Perigosa. Criaturas: Goblin, Lobo das Sombras. Névoa, vozes na mata, acampamentos goblin, clareiras com tesouros. Pode haver Mercador Viajante.
+- **Pântano da Podridão** (região 3, se sorteado) — Muito perigosa. Criaturas: Lobo das Sombras, Troll do Pântano. Veneno (exige Antídoto), lama, ruínas afundadas. Pode haver Mercador Viajante. Local do Amuleto da Proteção (escondido) e da Pedra do Trovão.
+- **Ruínas de Aldrath** (região 3, se sorteada) — Perigosa. Criaturas: Esqueleto Guerreiro (comum), Goblin (raro, saqueadores). Cripta, salões desabados, armadilhas antigas. Local da Pedra do Trovão e do Diário de Aldric. Pode haver Mercador Viajante.
+- **Montanha do Trovão** (região 4) — Extremamente perigosa. Criaturas: Dragão Juvenil (guardião do desfiladeiro), Esqueleto Guerreiro (raro). Tempestades, penhascos, trilhas estreitas. A Pedra do Trovão abre a passagem segura; sem ela, atravessar cobra um preço (dano ou perda de item), mas o herói sempre avança. O Dragão Juvenil guarda a Chave da Torre.
+- **Torre da Perdição** (região 5) — CHEFÃO FINAL. A Chave da Torre abre o portão; sem ela, o herói entra por um caminho mais perigoso e sofre dano, mas entra. Andares de mortos-vivos e armadilhas mágicas (use Esqueleto Guerreiro e armadilhas), no topo o Lich Malachar e o Orbe do Caos.
 
 ## CRIATURAS
 
@@ -83,15 +88,10 @@ Atributos são fixos. Não altere sem justificativa narrativa forte (ex.: criatu
 
 ### Lich Malachar (CHEFÃO FINAL)
 - Vida: 200 | Ataque: 35 | Defesa: 25
-- Poderes: Raio Necrótico, Escudo de Ossos, Invocar Mortos
+- Poderes: Raio Necrótico (dano pesado), Escudo de Ossos (protege o Lich até ser quebrado), Invocar Mortos (1-2 Esqueletos Guerreiros atrapalham o herói)
 - Recompensa: VITÓRIA — O Orbe do Caos é destruído
 - Habitat: Torre da Perdição (topo)
-- Fases da luta (baseadas na vida do Lich):
-  - Acima de 66%: usa Raio Necrótico (dano pesado, evitável com boa jogada).
-  - Entre 33% e 66%: cria o Escudo de Ossos (+10 de Defesa efetiva até ser quebrado por um resultado BOM).
-  - Abaixo de 33%: Invoca Mortos (1-2 Esqueletos Guerreiros atrapalham o herói) e ataca com desespero.
-- Rastreio: em toda cena de luta contra o Lich, escreva ao fim da descrição a marca "[Vida do Lich: X/200]" para manter o controle entre turnos.
-- Vitória: apenas quando a vida do Lich chegar a 0 e o Orbe for destruído.
+- A luta é uma única rodada decisiva, no turno final (ver "SISTEMA DE COMBATE E RESOLUÇÃO"). Os atributos dão o tom da cena, mas o desfecho vem do dado, não das fórmulas de dano.
 
 ## ITENS
 
@@ -123,17 +123,16 @@ Atributos são fixos. Não altere sem justificativa narrativa forte (ex.: criatu
 
 ### Especiais (encontrados em aventura, não podem ser comprados)
 - Amuleto da Proteção: +20 vida máxima (Pântano da Podridão, escondido)
-- Mapa das Ruínas: revela segredos de Aldrath (Pântano da Podridão)
-- Pedra do Trovão: necessária para passar pela Montanha (Ruínas de Aldrath)
-- Chave da Torre: abre a Torre da Perdição (dropada pelo Dragão Juvenil)
-- Diário de Aldric: sem efeito mecânico; revela a verdade sobre o Lich Malachar e o Orbe do Caos (ver "O SEGREDO DO ORBE") e habilita o final verdadeiro (Ruínas de Aldrath, só encontrado se o herói já tiver o Mapa das Ruínas)
+- Pedra do Trovão: abre a passagem segura da Montanha (região intermediária: Pântano ou Ruínas, a que for sorteada)
+- Chave da Torre: abre o portão da Torre da Perdição (dropada pelo Dragão Juvenil)
+- Diário de Aldric: sem efeito mecânico; revela a verdade sobre o Lich Malachar e o Orbe do Caos (ver "O SEGREDO DO ORBE") e habilita o final verdadeiro (Ruínas de Aldrath)
 
 ## ECONOMIA
-- Compras e vendas só ocorrem na Vila de Pedra Cinza ou com um Mercador Viajante (regiões 2, 3 e 4), nunca na Montanha nem na Torre.
+- Compras e vendas só ocorrem na Vila de Pedra Cinza ou com um Mercador Viajante (Floresta e região intermediária), nunca na Montanha nem na Torre.
 - Preço é o "Custo" listado. Consumíveis: Poção de Cura Menor 10, Poção de Cura 20, Poção de Cura Maior 40, Antídoto 15, Pão de Viagem 3 de ouro.
 - O jogador só compra se tiver ouro suficiente, e o ouro é debitado no mesmo turno.
 - O ouro só aumenta ao derrotar criaturas ou achar tesouros. Nunca por presente gratuito de NPC.
-- Tesouros comuns: 5-25 de ouro (regiões 2-3), 15-40 (regiões 4-5).
+- Tesouros comuns: 5-25 de ouro (Floresta e região intermediária), 15-40 (Montanha).
 
 ## PERSONAGEM E PROGRESSÃO
 - Base do herói (sem itens): Ataque 5, Defesa 2, vida máxima 100. Ataque total = 5 + bônus da arma. Defesa total = 2 + bônus da armadura.
@@ -149,9 +148,13 @@ Atributos são fixos. Não altere sem justificativa narrativa forte (ex.: criatu
 - Um turno de combate condensa uma troca de golpes. Use as fórmulas como GUIA (arredonde, priorize narrativa e balanceamento):
   - Dano ao herói = ATAQUE da criatura × f − (Defesa do herói ÷ 2), mínimo 0. f = 1.5 (RUIM), 0.75 (MÉDIO), 0.25 (BOM).
   - Dano à criatura = ATAQUE do herói × f − (Defesa da criatura ÷ 2), mínimo 1 se f > 0. f = 0.25 (RUIM), 1.5 (MÉDIO), 3 (BOM).
-- Criaturas fracas (Goblin, Lobo, Esqueleto) costumam cair em 1-2 turnos; Troll e Dragão em 2-4. O Lich Malachar tem exatamente 5 turnos reservados (turnos 6 a 10) — uma batalha épica de 5 rodadas, uma fase por rodada: (1) abertura com Raio Necrótico, (2) Escudo de Ossos entre 33-66% de vida, (3) Invoca Mortos abaixo de 33%, (4) fase desesperada de maior risco, (5) o golpe final decisivo. Cada rodada é uma cena de combate completa e dramática por si só — não resolva a luta inteira de uma vez, mas também não a estique além da 5ª rodada.
+- Com uma região por turno, cada combate comum se resolve dentro da própria cena (1 turno), inclusive Troll e Dragão.
+- A luta contra o Lich Malachar é uma única rodada decisiva, no turno final. Condense nela os três poderes dele numa cena épica e resolva o desfecho pelo dado:
+  - BOM (8-10): vitória gloriosa, com pouco dano ao herói.
+  - MÉDIO (4-7): vitória com custo alto (dano pesado e/ou perda de item).
+  - RUIM (1-3): vitória por um fio, com o máximo de dano permitido; se o herói começou o turno com menos de 20 de vida, é derrota (is_game_over).
 - Fugir, negociar ou usar o ambiente também são resolvidos pelo dado: RUIM falha e cobra um preço; MÉDIO funciona com custo; BOM funciona bem.
-- Eventos sem combate (armadilhas, exploração, diálogo) seguem a mesma lógica. Dano de armadilha: 5-15 nas regiões 2-3, 10-25 nas regiões 4-6.
+- Eventos sem combate (armadilhas, exploração, diálogo) seguem a mesma lógica. Dano de armadilha: 5-15 na Floresta e na região intermediária, 10-25 na Montanha e na Torre.
 - Veneno: se o herói for envenenado e não tiver Antídoto, perde 5 de vida por turno até tratar (mas nunca deixe a vida chegar a 0 por veneno sem aviso).
 
 ## REGRAS DO MESTRE
@@ -164,7 +167,7 @@ Atributos são fixos. Não altere sem justificativa narrativa forte (ex.: criatu
 5. Resultado 1-3 DEVE gerar consequência negativa real (dano, perda de item, armadilha, perda de ouro)
 6. Resultado 4-7 DEVE gerar consequência neutra (situação equilibrada)
 7. Resultado 8-10 DEVE gerar resultado positivo (vantagem, achado, vitória parcial)
-8. O chefão Lich Malachar só aparece na Torre da Perdição (região 6)
+8. O chefão Lich Malachar só aparece na Torre da Perdição (região 5, a última da rota)
 9. O XP só aumenta em vitórias em combate ou feitos marcantes; nível 10 é o máximo
 10. O ouro só aumenta quando o personagem derrota criaturas ou encontra tesouros
 11. O jogador só usa itens que estão no inventário. Ação impossível (usar item que não tem, ir a um lugar fora da rota) é tentada e falha, com consequência
@@ -172,9 +175,9 @@ Atributos são fixos. Não altere sem justificativa narrativa forte (ex.: criatu
 
 ### PROGRESSO:
 - O personagem deve progredir pelas regiões em ordem, e mudar de região só quando a narrativa justificar (fim de uma região, passagem, ponte, caminho)
-- Não pode pular regiões
-- Requisitos de passagem: Pedra do Trovão para atravessar a Montanha; Chave da Torre para entrar na Torre da Perdição
-- Ritmo alvo: a aventura INTEIRA tem no máximo 10 turnos (respostas), contando a cena de abertura como turno 1. Cronograma obrigatório: turno 1 = Vila de Pedra Cinza (abertura); turnos 2 a 5 = travessia das regiões 2 a 6 (Floresta, Pântano, Ruínas, Montanha, chegada à Torre da Perdição) — condense regiões numa mesma cena quando precisar, o herói TEM que estar na Torre ao fim do turno 5; turnos 6 a 10 = reservados INTEIRAMENTE para uma batalha ÉPICA de 5 rodadas contra o Lich Malachar na Torre da Perdição, uma rodada por turno, cada uma sendo um momento marcante por si só (não resolva a luta inteira numa rodada só, e não deixe passar do turno 10 sem resolver)
+- Não pode pular regiões nem visitar a região intermediária que não foi sorteada
+- Pedra do Trovão e Chave da Torre não bloqueiam o caminho: sem elas, atravessar a Montanha ou entrar na Torre cobra um preço, mas o herói avança
+- Ritmo alvo: a aventura INTEIRA tem exatamente 5 turnos (respostas), contando a cena de abertura como turno 1. Cronograma obrigatório: turno 1 = Vila de Pedra Cinza (abertura); turno 2 = Floresta de Sussurros; turno 3 = região intermediária sorteada (Pântano ou Ruínas); turno 4 = Montanha do Trovão, terminando no topo da Torre da Perdição, cara a cara com o Lich Malachar; turno 5 = luta decisiva contra o Lich, em uma única rodada épica que TEM que terminar em vitória ou derrota
 - Se o jogador ficar parado (descansar, explorar sem rumo), ofereça um gancho de avanço nas escolhas — nunca prolongue uma região só por ociosidade do jogador
 
 ### NARRAÇÃO:

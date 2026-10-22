@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { buildActionPrompt, buildOpeningPrompt, buildSystemPrompt, MAX_TURNS } from './prompts';
+import { MIDDLE_REGIONS, type MiddleRegion } from './knowledgeBase';
 import { GAME_RESPONSE_SCHEMA } from './schema';
 import { INITIAL_CHARACTER } from './character';
 import type { HeroOriginId } from './origins';
@@ -196,9 +197,14 @@ async function requestOnce(
   return normalize(raw, current, dice, turnNumber);
 }
 
+/** Sorteia a 3ª região da rota (Pântano ou Ruínas). Chamado uma vez, no início da partida. */
+export function pickMiddleRegion(): MiddleRegion {
+  return MIDDLE_REGIONS[randomInt(MIDDLE_REGIONS.length)];
+}
+
 /**
- * `turnNumber` deve vir de uma fonte confiável (o estado assinado pelo backend).
- * Sem ele, cai no cálculo pelo histórico, que o cliente controla.
+ * `turnNumber` e `middleRegion` devem vir de uma fonte confiável (o estado assinado pelo backend).
+ * Sem o turno, cai no cálculo pelo histórico, que o cliente controla.
  */
 export function callGameMaster(
   apiKey: string,
@@ -206,6 +212,7 @@ export function callGameMaster(
   character: CharacterStatus,
   history: HistoryMessage[],
   turnNumber: number = turnNumberFor(history),
+  middleRegion: MiddleRegion = MIDDLE_REGIONS[0],
 ): Promise<GameResponse> {
   // O dado é rolado aqui (aleatório de verdade); o modelo só narra o resultado.
   const dice = randomInt(1, 11);
@@ -214,7 +221,7 @@ export function callGameMaster(
     4096,
     [
       ...history.slice(-HISTORY_WINDOW),
-      { role: 'user', content: buildActionPrompt(playerAction, character, dice, turnNumber) },
+      { role: 'user', content: buildActionPrompt(playerAction, character, dice, turnNumber, middleRegion) },
     ],
     character,
     dice,

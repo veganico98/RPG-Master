@@ -9,7 +9,7 @@ Para o contexto completo do jogo (regiões, bestiário, regras de progressão) v
 | Arquivo | Responsabilidade |
 | --- | --- |
 | [knowledgeBase.ts](knowledgeBase.ts) | Fonte única de verdade do mundo: história, regiões, bestiário, itens e regras fixas do Mestre. Editar o jogo (balanceamento, lore, itens) começa aqui. |
-| [prompts.ts](prompts.ts) | `buildSystemPrompt()` monta o prompt de sistema (papel do Mestre + base de conhecimento + guardrails). `buildActionPrompt(action, character, dice, turnNumber)` monta o prompt de cada turno, com o dado classificado, o progresso entre regiões, a motivação do herói e a nota de ritmo (10 turnos; luta contra o Lich nos turnos 6 a 10). `buildOpeningPrompt(origin)` monta a cena inicial, com uma variação de texto por origem escolhida. |
+| [prompts.ts](prompts.ts) | `buildSystemPrompt()` monta o prompt de sistema (papel do Mestre + base de conhecimento + guardrails). `buildActionPrompt(action, character, dice, turnNumber, middle)` monta o prompt de cada turno, com o dado classificado, a rota da partida e o progresso nela, a motivação do herói e a nota de ritmo (5 turnos; encontro com o Lich no fim do turno 4 e luta decisiva no turno 5). `buildOpeningPrompt(origin)` monta a cena inicial, com uma variação de texto por origem escolhida. |
 | [schema.ts](schema.ts) | `GAME_RESPONSE_SCHEMA`: JSON Schema usado como parâmetros da function tool `game_response`, com limites embutidos (2–4 caminhos, nível 1–10, etc). |
 | [gameMaster.ts](gameMaster.ts) | Cliente da API de chat da OpenAI: `callGameMaster`, `getOpeningScene`, `normalize` (exportada para testes) e a lógica de retry. |
 | [imageGen.ts](imageGen.ts) | `generateSceneImage`: chama a API de imagens da OpenAI e devolve um data URL JPEG (base64). |
@@ -37,14 +37,14 @@ O `package.json` declara subpaths para permitir que o frontend importe só tipos
 }
 ```
 
-- **Backend** importa de `@rpg-master/ai` (raiz): `callGameMaster`, `getOpeningScene`, `generateSceneImage`, `generateSpeech`, `isTtsVoice`, `characterFromResponse`, `HERO_ORIGINS` (para validar a origem recebida em `/api/game/start`), além dos tipos.
+- **Backend** importa de `@rpg-master/ai` (raiz): `callGameMaster`, `getOpeningScene`, `pickMiddleRegion` e `isMiddleRegion` (sorteio e validação da 3ª região da rota), `generateSceneImage`, `generateSpeech`, `isTtsVoice`, `characterFromResponse`, `HERO_ORIGINS` (para validar a origem recebida em `/api/game/start`), além dos tipos.
 - **Frontend** importa de `@rpg-master/ai/types` (tipos como `CharacterStatus`, `GameResponse`, `Path`), `@rpg-master/ai/character` (`INITIAL_CHARACTER`) e `@rpg-master/ai/origins` (`HERO_ORIGINS`, para renderizar os botões de origem na tela de boas-vindas) e `@rpg-master/ai/room` (`RoomState`), nunca da raiz — assim o bundle do cliente não carrega `gameMaster.ts`/`imageGen.ts`, que fazem chamadas autenticadas à OpenAI.
 
 ## Como funciona cada chamada
 
-### `callGameMaster(apiKey, playerAction, character, history, turnNumber?)`
+### `callGameMaster(apiKey, playerAction, character, history, turnNumber?, middleRegion?)`
 
-O backend passa `turnNumber` a partir do estado assinado. Sem ele, o turno é calculado pelas respostas do Mestre no histórico.
+O backend passa `turnNumber` e `middleRegion` (Pântano ou Ruínas, sorteada por `pickMiddleRegion()` no início da partida) a partir do estado assinado. Sem o turno, ele é calculado pelas respostas do Mestre no histórico; sem a região, vale o Pântano.
 
 1. Rola o dado no servidor com `randomInt(1, 11)` (do `node:crypto`) — **nunca** confia em um valor vindo do modelo.
 2. Monta as mensagens: `buildSystemPrompt()` como `system`, as últimas `HISTORY_WINDOW` (10) mensagens do histórico, e um prompt de usuário com a ação, o status atual do personagem e o dado já classificado (ruim/médio/bom).
@@ -64,7 +64,7 @@ Função interna que blinda o backend contra respostas incompletas do modelo:
 - Preenche qualquer campo de `character_status` ausente com o valor atual do personagem (evita que vida/ouro/inventário "zerem" por omissão do modelo).
 - Aplica os guardrails numéricos no código: ouro sobe no máximo 150 por turno, vida máxima até 200, vida entre 0 e o máximo, com vida ≥ 20 no início do turno o herói não cai abaixo de 1, e nível = 1 + floor(XP / 100), até 10.
 - `is_game_over` é exatamente "vida chegou a 0", independentemente do que o modelo marcar.
-- No turno 10 sem desfecho, força o confronto com o Lich e encerra a partida (vitória se a vida for maior que 0).
+- No último turno (5) sem desfecho, força o confronto com o Lich e encerra a partida (vitória se a vida for maior que 0).
 - Garante pelo menos 2 caminhos (usa `FALLBACK_PATHS` se o modelo mandar poucos ou nenhum, exceto quando é fim de jogo).
 - Gera um `scene_image_prompt` de fallback se o modelo não mandar um.
 

@@ -28,6 +28,17 @@ test('token expirado é rejeitado', () => {
   assert.equal(signer.verify(signer.sign(state, 0), 1001), null);
 });
 
+test('a região sorteada viaja no token', () => {
+  const token = signer.sign({ ...state, middle: 'Ruínas de Aldrath' }, 0);
+  assert.equal(signer.verify(token, 0)?.middle, 'Ruínas de Aldrath');
+});
+
+test('região intermediária desconhecida é rejeitada', () => {
+  // Mesmo com assinatura válida, um valor fora da lista não passa na validação.
+  const token = signer.sign({ ...state, middle: 'Montanha do Trovão' as never }, 0);
+  assert.equal(signer.verify(token, 0), null);
+});
+
 test('valores malformados são rejeitados', () => {
   for (const bad of [undefined, 42, '', 'abc', 'a.b.c', '.', 'x'.repeat(20_000)]) {
     assert.equal(signer.verify(bad, 0), null);

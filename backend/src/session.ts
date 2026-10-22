@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { CharacterStatus } from '@rpg-master/ai';
+import { isMiddleRegion, type CharacterStatus, type MiddleRegion } from '@rpg-master/ai';
 
 export type GameOutcome = 'vitoria' | 'derrota';
 
@@ -13,6 +13,8 @@ export interface GameState {
   id: string;
   /** Último turno já narrado (a abertura é o turno 1). */
   turn: number;
+  /** 3ª região da rota, sorteada no início. Ausente em tokens emitidos antes do sorteio existir. */
+  middle?: MiddleRegion;
   character: CharacterStatus;
   outcome: GameOutcome | null;
   /** Emitido em (epoch ms). */
@@ -28,6 +30,7 @@ function isState(v: unknown): v is GameState {
     typeof s.id === 'string' &&
     Number.isInteger(s.turn) &&
     s.turn >= 1 &&
+    (s.middle === undefined || isMiddleRegion(s.middle)) &&
     Number.isFinite(s.iat) &&
     (s.outcome === null || s.outcome === 'vitoria' || s.outcome === 'derrota') &&
     !!s.character &&

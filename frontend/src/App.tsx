@@ -764,7 +764,7 @@ function WelcomeScreen({ onStart }: { onStart: (origin: HeroOriginId, withAudien
           <div className="flex flex-col gap-2">
             {[
               '🎲 Dado 1–10 rola a cada decisão',
-              '🗺️ 6 regiões para explorar até o chefão',
+              '🗺️ 5 regiões até o chefão, uma delas sorteada',
               '⚔️ Combates, itens e escolhas que importam',
               '🧠 IA narra cada cena de forma única',
             ].map((item) => (

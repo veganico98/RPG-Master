@@ -44,11 +44,12 @@ O servidor não guarda partidas, mas também não confia no cliente. A cada resp
 | --- | --- |
 | `id` | UUID da partida, gerado no `start` |
 | `turn` | Último turno narrado (abertura = 1) |
+| `middle` | 3ª região da rota (`'Pântano da Podridão'` ou `'Ruínas de Aldrath'`), sorteada no `start`. Tokens antigos sem o campo seguem pelo Pântano |
 | `character` | Personagem após o turno, já com os guardrails de `normalize` aplicados |
 | `outcome` | `'vitoria'`, `'derrota'` ou `null` |
 | `iat` | Data de emissão; o token vale 7 dias |
 
-O cliente devolve o token no turno seguinte. Assim, editar o `localStorage` ou o payload não muda vida, ouro, inventário nem o turno (o que antes permitia fugir do fim obrigatório no turno 10). O segredo vem de `SESSION_SECRET`; sem ele, o servidor gera um aleatório a cada start e as partidas salvas deixam de valer após um restart.
+O cliente devolve o token no turno seguinte. Assim, editar o `localStorage` ou o payload não muda vida, ouro, inventário, a rota sorteada nem o turno (o que antes permitia fugir do fim obrigatório no último turno). O segredo vem de `SESSION_SECRET`; sem ele, o servidor gera um aleatório a cada start e as partidas salvas deixam de valer após um restart.
 
 ## Validação de entrada
 
